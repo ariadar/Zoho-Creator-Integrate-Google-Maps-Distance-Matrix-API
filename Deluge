@@ -1,0 +1,25 @@
+// Get GPS coordinates (Latitude,Longitude) from "Origin" & "Destination" Address Fields
+input.Origin_Coordinates = input.Origin_Address.latitude + "," + input.Origin_Address.longitude;
+input.Destination_Coordinates = input.Destination_Address.latitude + "," + input.Destination_Address.longitude;
+// Calculate Driving Distance & Time
+{
+	DistanceResult = invokeurl
+[
+	url :"https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=" + input.Origin_Coordinates + "&destinations=" + input.Destination_Coordinates + "&mode=driving&key=APIKEY"
+	type :POST
+];
+	if(DistanceResult.contains("distance"))
+	{
+		rows = DistanceResult.getjson("rows");
+		elementsList = rows.toJSONList();
+		elements = elementsList.getJSON("elements");
+		distanceList = elements.toJSONList();
+		distance = distanceList.getjson("distance");
+		valueList = distance.toJSONList();
+		input.Driving_Distance_Metric = valueList.getjson("text");
+		timeList = elements.toJSONList();
+		time = timeList.getjson("duration");
+		textList = time.toJSONList();
+		input.Driving_Time = textList.getjson("text");
+	}
+}
